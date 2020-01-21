@@ -1,7 +1,7 @@
 ﻿# Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ангелина Ермакова](https://up.htmlacademy.ru/javascript/19/user/931533).
-* Наставник: `Убайд Исаев`(https://htmlacademy.ru/profile/id1340949).
+* Наставник: [Убайд Исаев](https://htmlacademy.ru/profile/id1340949).
 
 ---
 
