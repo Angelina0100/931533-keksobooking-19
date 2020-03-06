@@ -136,3 +136,31 @@ var createFragment = function (mapMarks) {
 var addMToMap = function (map, mapMarks) {
   map.appendChild(mapMarks);
 }
+
+//Задание 5. DOM-элемент объявления (карточка объявления)
+var templateContent = document.querySelector('template').content;
+console.log(templateContent);
+
+var titling = templateContent.querySelector('.popup__title');
+titling.textContent = advert.offer.title;
+
+var address = templateContent.querySelector('.popup__text--address');
+address.textContent = advert.offer.address;
+
+var pricing = templateContent.querySelector('.popup__text--price');
+pricing.textContent = advert.offer.price + '₽/ночь';
+
+var livingType = templateContent.querySelector('.popup__type');
+livingType.textContent = getLivingType(advert.offer.type);
+function getLivingType (appartmentType) {
+  switch (appartmentType) {
+    case 'flat': 'Квартира'; break;
+    case 'bungalo': 'Бунгало'; break;
+    case 'house': 'Дом'; break;
+    case 'palace': 'Дворец'; break;
+    default: 'Тип жилья';
+  }
+  return appartmentType;
+}
+
+var roomsQty = textContent.querySelector('')
