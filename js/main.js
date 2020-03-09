@@ -37,7 +37,7 @@ var locationX = {
   minX: 0,
   maxX: mapBlockWidth
 }
-var KEY_ENTER = 'Enter';
+
 var MAIN_PIN_CENTER_X = 570;
 var MAIN_PIN_CENTER_Y = 375;
 var MAIN_PIN_HEIGHT = 65;
@@ -104,7 +104,7 @@ var getAdvertsList = function () {
       };
       advertsList.push(advert);
     }
-    return adverts, advertsList;
+    return advert, advertsList;
   };
 
 //Функция создания меток на карте.
@@ -123,7 +123,7 @@ var createMapPins = function (advertsList) {
   }
   document.querySelector('.map_pins').appendChild(fragment);
 }
-
+/*
 //Функция создания карточки с объявлением об аренде
 var getAdvertCard = function(advert) {
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -149,9 +149,10 @@ var getAdvertCard = function(advert) {
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
   return cardElement;
 }
-//Вставить полученный DOM-элемент в блок .map перед блоком.map__filters-container
-document.querySelector('.map').insertBefore(cardElement, document.querySelector('.map__filters-container'));
 
+//Вставить полученный DOM-элемент в блок .map перед блоком.map__filters-container
+document.querySelector('.map').insertBefore(getAdvertCard(), document.querySelector('.map__filters-container'));
+*/
 //Задание 7. Активный режим
 var setActiveState = function () {
   document.querySelector('.map').classList.remove('map--faded');
@@ -173,15 +174,19 @@ mainPinButton.addEventListener('mousedown', function (evt) {
   };
   fillinAddressInput();
 });
-mainPinButton.addEventListener('keydown', function () {
-  if(evt.key === KEY_ENTER) {
+mainPinButton.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === 13) {
     setActiveState();
   }
 });
 }
-
+onMainPin();
 // Взаимодействие с меткой приводит к заполнению поля адреса
 var fillinAddressInput = function (addressValue) {
   var addressInput = document.querySelector('#address');
   addressInput.value = addressValue;
 }
+function newFunction() {
+  getAdvertsList();
+}
+
