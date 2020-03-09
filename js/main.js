@@ -1,37 +1,50 @@
 'use strict';
-//ОБъявление переменных
-var OBJECTS = 8; //массива из 8 сгенерированных JS объектов
-var TITLES = ['Уютная квартира', 'Большая красивая квартира', 'Маленькая светлая комната', 'Дизайнерские аппартаменты', 'Аппартаменты для большой семьи', 'Недорогая комната', 'Студия-лофт', 'Огромная студия'];
+var OBJECTS = 8;
+var TITLES = ['Название объявления по сдаче жилья 1', 'Название объявления по сдаче жилья 2', 'Название объявления по сдаче жилья 3', 'Название объявления по сдаче жилья 4', 'Название объявления по сдаче жилья 5', 'ННазвание объявления по сдаче жилья 6', 'Название объявления по сдаче жилья 7', 'Название объявления по сдаче жилья 8'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var DESCRIPTIONS = [
-  'Описание1',
-  'Описание2',
-  'Описание3',
-  'Описание4',
-  'Описание5',
-  'Описание6',
-  'Описание7',
-  'Описание8'
+  'Описание объявления по сдаче жилья 1',
+  'Описание объявления по сдаче жилья 2',
+  'Описание объявления по сдаче жилья 3',
+  'Описание объявления по сдаче жилья 4',
+  'Описание объявления по сдаче жилья 5',
+  'Описание объявления по сдаче жилья 6',
+  'Описание объявления по сдаче жилья 7',
+  'Описание объявления по сдаче жилья 8'
 ];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var ROOMS = [1, 2, 3, 4];
 var GUESTS = [1, 2, 3, 4, 5, 6];
 var price = {
   min: 0,
-  max: 10000
+  max: 1000000
 }
-var mapBlock = document.querySelector('.map').clientWidth;
+var MIN_PRICES_PER_TYPE = {
+  'bungalo': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000
+}
+var mapBlockWidth = document.querySelector('.map').clientWidth;
 var locationY = {
   minY: 130,
   maxY: 630
 }
 var locationX = {
-  minX: 130,
-  maxX: mapBlock
+  minX: 0,
+  maxX: mapBlockWidth
 }
+var KEY_ENTER = 'Enter';
+var MAIN_PIN_CENTER_X = 570;
+var MAIN_PIN_CENTER_Y = 375;
+var MAIN_PIN_HEIGHT = 65;
+var MAIN_PIN_WIDTH = 65;
+var PIN_HEIGHT = 50;
+var PIN_WIDTH = 70;
+var PIN_IMAGE_SIZE = 40;
 //Массивы значений
 var getRandomNumber = function(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -63,9 +76,9 @@ var getRandomArray = function(arr) {
   return newArray;
 }
 
-//Задание 1
-var getObjectList = function () {
-  var objectsList = [];
+//Функция создания массива случайных объявлений
+var getAdvertsList = function () {
+  var advertsList = [];
   for (var i = 0; i <= OBJECTS; i++) {
     var advert = {
       author: {
@@ -89,52 +102,36 @@ var getObjectList = function () {
         y: getRandomNumber(locationY.minY, locationY.maxY)
         }
       };
-      objectsList.push(advert);
+      advertsList.push(advert);
     }
-    return objectsList;
+    return adverts, advertsList;
   };
 
-//Задание 2. У блока .map уберите класс .map--faded.
-var hideMap = function() {
-  var map = document.querySelector('.map');
-  map.classList.remove('map--faded');
-}
-//Задание 3. Создание DOM-элементов.
-var mapPins = document.querySelector('.map__pins');
-var pinTemplate = document.querySelector('#pin').content.querySelector('.map-pin');
-
-var generateLayout = function (advert, index) {
-  var pinButton = document.createElement('button');
-  var pinImage = document.createElement('img');
-  pinButton.appendChild(pinImage);
-  pinButton.classList.add('map__pin');
-  pinButton.style.left = advert.location.x + 'px';
-  pinButton.style.top = advert.location.y + 'px';
-  pinImage.src = advert.author.avatar;
-  pinImage.classList.add('alt');
-  pinImage.alt = advert.offer.title;
-  pinImage.style.width = '40' + 'px';
-  pinImage.style.height = '40' + 'px';
-  pinImage.draggable = false;
-  return pinButton;
-}
-
-//Задание 4. Отрисовка сгенерированных DOM-элементов в блок .map__pins.
-var createFragment = function (mapMarks) {
+//Функция создания меток на карте.
+var createMapPins = function (advertsList) {
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map-pin');
   var fragment = document.createDocumentFragment();
-  for (var i = 0; i < mapMarks.length; i++) {
-    fragment.appendChild(generateLayout(mapMarks[i], i))
+
+  for (var i = 0; i < advertsList.length; i++) {
+    var pinElement = pinTemplate.cloneNode(true);
+    var pinElementImage = pinElement.querySelector('img');
+    pinElement.style.left = advertsList[i].location.x + PIN_WIDTH/2 + 'px';
+    pinElement.style.top = advertsList[i].location.y + PIN_HEIGHT/2 + 'px';
+    pinElementImage.src = advertsList[i].author.avatar;
+    pinElementImage.alt = advertsList[i].offer.title;
+    fragment.appendChild(pinElement);
   }
-  return fragment;
+  document.querySelector('.map_pins').appendChild(fragment);
 }
 
-//Задание 5. DOM-элемент объявления
-var getAdvertObject = function(advert) {
-  var templateContent = document.querySelector('template').content;
-  templateContent.querySelector('.popup__title').textContent = advert.offer.title;
-  templateContent.querySelector('.popup__text--address').textContent = advert.offer.address;
-  templateContent.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  templateContent.querySelector('.popup__type').textContent = getLivingType(advert.offer.type);
+//Функция создания карточки с объявлением об аренде
+var getAdvertCard = function(advert) {
+  var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+  var cardElement = cardTemplate.cloneNode(true);
+  cardElement.querySelector('.popup__title').textContent = advert.offer.title;
+  cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
+  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
+  cardElement.querySelector('.popup__type').textContent = getLivingType(advert.offer.type);
   var getLivingType = function (liveType) {
     switch(liveType) {
       case 'flat': 'Квартира'; break;
@@ -144,17 +141,47 @@ var getAdvertObject = function(advert) {
       default: 'Тип жилья';
     }
   }
-  templateContent.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
-  templateContent.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
-  templateContent.querySelector('.popup__features').textContent = advert.offer.features;
-  templateContent.querySelector('.popup__description').textContent = advert.offer.description;
-  templateContent.querySelector('.popup__photos').src = advert.offer.photos;
-  templateContent.querySelector('.popup__avatar').src = advert.author.avatar;
-
-  //Если данных для заполнения не хватает, соответствующий блок в карточке скрывается
-  // Не совсем поняла, что это в принципе => как реализовать тоже.
-
-  return templateContent;
+  cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
+  cardElement.querySelector('.popup__features').textContent = advert.offer.features;
+  cardElement.querySelector('.popup__description').textContent = advert.offer.description;
+  cardElement.querySelector('.popup__photos').src = advert.offer.photos;
+  cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
+  return cardElement;
 }
-// Задание 6. Вставить полученный DOM-элемент в блок .map перед блоком.map__filters-container
-document.querySelector('.map').insertBefore(templateContent, document.querySelector('.map__filters-container'));
+//Вставить полученный DOM-элемент в блок .map перед блоком.map__filters-container
+document.querySelector('.map').insertBefore(cardElement, document.querySelector('.map__filters-container'));
+
+//Задание 7. Активный режим
+var setActiveState = function () {
+  document.querySelector('.map').classList.remove('map--faded');
+  document.querySelector('.ad-form').classList.remove('ad-form--disabled');
+  var fieldsetList = document.querySelectorAll('fieldset');
+  for (var i = 0; i <= fieldsetList.length - 1; i++) {
+    if (fieldsetList[i].disabled) {
+      fieldsetList[i].classList.remove('disabled');
+    }
+  }
+  getAdvertObject(advert);
+}
+//Перевод в активное состояние по нажатию мыши и enter
+var onMainPin = function () {
+var mainPinButton = document.querySelector('.map__pin--main');
+mainPinButton.addEventListener('mousedown', function (evt) {
+  if (evt.which == 1) {
+    setActiveState();
+  };
+  fillinAddressInput();
+});
+mainPinButton.addEventListener('keydown', function () {
+  if(evt.key === KEY_ENTER) {
+    setActiveState();
+  }
+});
+}
+
+// Взаимодействие с меткой приводит к заполнению поля адреса
+var fillinAddressInput = function (addressValue) {
+  var addressInput = document.querySelector('#address');
+  addressInput.value = addressValue;
+}
