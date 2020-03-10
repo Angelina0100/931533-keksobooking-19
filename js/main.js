@@ -181,12 +181,18 @@ mainPinButton.addEventListener('keydown', function (evt) {
 });
 }
 onMainPin();
+
 // Взаимодействие с меткой приводит к заполнению поля адреса
 var fillinAddressInput = function (addressValue) {
   var addressInput = document.querySelector('#address');
   addressInput.value = addressValue;
 }
-function newFunction() {
-  getAdvertsList();
+
+var getmainPinCenter = function () {
+  var mainPinCEnter = Math.floor(MAIN_PIN_CENTER_X + MAIN_PIN_WIDTH/2) + ', ' + Math.floor(MAIN_PIN_CENTER_Y + MAIN_PIN_HEIGHT/2);
+  return mainPinCEnter;
 }
 
+fillinAddressInput(getmainPinCenter());
+
+// Валидация
