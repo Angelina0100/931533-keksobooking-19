@@ -1,10 +1,15 @@
 'use strict';
-var OBJECTS = 8;
+var COUNT = 9;
 var TITLES = ['Название объявления по сдаче жилья 1', 'Название объявления по сдаче жилья 2', 'Название объявления по сдаче жилья 3', 'Название объявления по сдаче жилья 4', 'Название объявления по сдаче жилья 5', 'ННазвание объявления по сдаче жилья 6', 'Название объявления по сдаче жилья 7', 'Название объявления по сдаче жилья 8'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
-var TYPES = ['palace', 'flat', 'house', 'bungalo'];
+var TYPES = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало'
+};
 var DESCRIPTIONS = [
   'Описание объявления по сдаче жилья 1',
   'Описание объявления по сдаче жилья 2',
@@ -21,23 +26,22 @@ var GUESTS = [1, 2, 3, 4, 5, 6];
 var price = {
   min: 0,
   max: 1000000
-}
+};
 var MIN_PRICES_PER_TYPE = {
-  'bungalo': 0,
-  'flat': 1000,
-  'house': 5000,
-  'palace': 10000
-}
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
 var mapBlockWidth = document.querySelector('.map').clientWidth;
 var locationY = {
   minY: 130,
   maxY: 630
-}
+};
 var locationX = {
   minX: 0,
   maxX: mapBlockWidth
-}
-
+};
 var MAIN_PIN_CENTER_X = 570;
 var MAIN_PIN_CENTER_Y = 375;
 var MAIN_PIN_HEIGHT = 65;
@@ -45,6 +49,12 @@ var MAIN_PIN_WIDTH = 65;
 var PIN_HEIGHT = 50;
 var PIN_WIDTH = 70;
 var PIN_IMAGE_SIZE = 40;
+var KEYCODES = {
+  enter: 13,
+  esc: 27,
+  leftMouse: 1
+};
+var isActive = false;
 //Массивы значений
 var getRandomNumber = function(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -75,20 +85,25 @@ var getRandomArray = function(arr) {
   var newArray = getRandomArrayLength(getShuffledArray(arr));
   return newArray;
 }
+//Функция для рандомного свойства объекта
+var getRandomProperty = function (obj) {
+  var keys = Object.keys(obj);
+  return obj[keys[ keys.length * Math.random() << 0]];
+};
 
 //Функция создания массива случайных объявлений
 var getAdvertsList = function () {
   var advertsList = [];
-  for (var i = 0; i <= OBJECTS; i++) {
+  for (var i = 0; i <= COUNT; i++) {
     var advert = {
       author: {
-        avatar: 'img/avatars/user0' + getRandomNumber(1, 8) + '.png',
+        avatar: 'img/avatars/user0' + i + '.png',
         },
       offer: {
         title: getRandomArrayElement(TITLES),
-        address: location.x + ', ' + location.y,
+        address: getRandomNumber(locationX.minX, locationX.maxX) + ', ' + getRandomNumber(locationY.minY, locationY.maxY),
         price: getRandomNumber(price.min, price.max),
-        type: getRandomArrayElement(TYPES),
+        type: getRandomProperty(TYPES),
         rooms: getRandomArrayElement(ROOMS),
         guests: getRandomArrayElement(GUESTS),
         checkin: getRandomArrayElement(CHECKIN),
@@ -104,14 +119,23 @@ var getAdvertsList = function () {
       };
       advertsList.push(advert);
     }
-    return advert, advertsList;
+    if (advert.offer.type = 'Дворец') {
+      advert.offer.price = getRandomNumber(MIN_PRICES_PER_TYPE.palace, price.max);
+    } else if (advert.offer.type = 'Дом') {
+      advert.offer.price = getRandomNumber(MIN_PRICES_PER_TYPE.house, price.max);
+    } else if (advert.offer.type = 'Квартира') {
+      advert.offer.price = getRandomNumber(MIN_PRICES_PER_TYPE.flat, price.max);
+    } else {
+      advert.offer.price = getRandomNumber(price.min, price.max);
+    }
+    return advertsList;
   };
+getAdvertsList();
 
-//Функция создания меток на карте.
-var createMapPins = function (advertsList) {
+//Функция создания каждого объявления
+var createMapPin = function (advertsList) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map-pin');
   var fragment = document.createDocumentFragment();
-
   for (var i = 0; i < advertsList.length; i++) {
     var pinElement = pinTemplate.cloneNode(true);
     var pinElementImage = pinElement.querySelector('img');
@@ -121,6 +145,10 @@ var createMapPins = function (advertsList) {
     pinElementImage.alt = advertsList[i].offer.title;
     fragment.appendChild(pinElement);
   }
+  return fragment;
+}
+//Функция создания меток на карте.
+var createPinsOnMap = function () {
   document.querySelector('.map_pins').appendChild(fragment);
 }
 /*
@@ -163,24 +191,23 @@ var setActiveState = function () {
       fieldsetList[i].classList.remove('disabled');
     }
   }
-  getAdvertObject(advert);
 }
 //Перевод в активное состояние по нажатию мыши и enter
-var onMainPin = function () {
+var onMainPinPress = function () {
 var mainPinButton = document.querySelector('.map__pin--main');
 mainPinButton.addEventListener('mousedown', function (evt) {
-  if (evt.which == 1) {
+  if (evt.which == KEYCODES.leftMouse) {
     setActiveState();
   };
   fillinAddressInput();
 });
 mainPinButton.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === 13) {
+  if (evt.keyCode === KEYCODES.enter) {
     setActiveState();
   }
 });
 }
-onMainPin();
+onMainPinPress();
 
 // Взаимодействие с меткой приводит к заполнению поля адреса
 var fillinAddressInput = function (addressValue) {
@@ -188,11 +215,28 @@ var fillinAddressInput = function (addressValue) {
   addressInput.value = addressValue;
 }
 
-var getmainPinCenter = function () {
-  var mainPinCEnter = Math.floor(MAIN_PIN_CENTER_X + MAIN_PIN_WIDTH/2) + ', ' + Math.floor(MAIN_PIN_CENTER_Y + MAIN_PIN_HEIGHT/2);
+var getMainPinCenter = function () {
+  var mainPinCEnter = Math.floor(MAIN_PIN_CENTER_X - MAIN_PIN_WIDTH/2) + ', ' + Math.floor(MAIN_PIN_CENTER_Y - MAIN_PIN_HEIGHT/2);
   return mainPinCEnter;
 }
 
-fillinAddressInput(getmainPinCenter());
+fillinAddressInput(getMainPinCenter());
+//всю высоту с кончиком
+// Огрнаичения на поля ввода
 
-// Валидация
+var typeOfLiving = document.querySelector('#type');
+var pricePerNight = document.querySelector('#price');
+
+typeOfLiving.addEventListener('change', function () {
+  pricePerNight.min = MIN_PRICES_PER_TYPE[typeOfLiving.value];
+  pricePerNight.placeholder = pricePerNight.min;
+});
+
+var roomQty = document.querySelector('#room_number');
+var guestQty = document.querySelector('#capacity');
+
+roomQty.addEventListener('change', function () {
+  if (guestQty.value = 1) {
+   roomQty.value = 1;
+  } else
+});
